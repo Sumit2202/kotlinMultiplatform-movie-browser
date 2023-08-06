@@ -16,6 +16,7 @@ import org.jetbrains.compose.resources.painterResource
 import style.MovieBrowserKmmTheme
 import ui.features.MovieList
 import decompose.MovieBrowserKmmRoot
+import com.arkivanov.decompose.extensions.compose.jetbrains.stack.Children
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -83,7 +84,17 @@ fun AppScaffoldContent(root: MovieBrowserKmmRoot,onHamburgerClicked: () -> Unit)
         Column(
             modifier = Modifier.padding(paddingValues)
         ) {
-            MovieList()
+            Children(root.childStack){
+                when(val child = it.instance){
+                    is MovieBrowserKmmRoot.Child.MainScreen ->{
+                        MovieList(child.mainScreenComponent)
+                    }
+
+                    is MovieBrowserKmmRoot.Child.DetailScreen ->{
+
+                    }
+                }
+            }
         }
     }
 }
