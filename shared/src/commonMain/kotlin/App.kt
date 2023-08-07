@@ -10,19 +10,20 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import com.arkivanov.decompose.extensions.compose.jetbrains.stack.Children
+import com.arkivanov.decompose.router.stack.active
+import decompose.DetailsScreenComponent
+import decompose.MovieBrowserKmmRoot
 import kotlinx.coroutines.*
 import org.jetbrains.compose.resources.ExperimentalResourceApi
 import org.jetbrains.compose.resources.painterResource
 import style.MovieBrowserKmmTheme
+import ui.features.MovieDetailsScreen
 import ui.features.MovieList
-import decompose.MovieBrowserKmmRoot
-import com.arkivanov.decompose.extensions.compose.jetbrains.stack.Children
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun App(root: MovieBrowserKmmRoot) {
-
-
     MovieBrowserKmmTheme {
         Surface(
             modifier = Modifier.fillMaxSize(),
@@ -37,13 +38,26 @@ fun App(root: MovieBrowserKmmRoot) {
                     }
                 }
             ) {
-                AppScaffoldContent(root) {
-                    scope.launch {
-                        drawerState.open()
+                AppScaffoldContent(
+                    root,
+                    onHamburgerClicked = {
+                        scope.launch {
+                            drawerState.open()
+                        }
+                    },
+                    onBackPressed = {
+                        backPressed(root)
                     }
-                }
+                )
             }
         }
+    }
+}
+
+private fun backPressed(root: MovieBrowserKmmRoot) {
+    print("onBackPressed :${root.childStack.active.instance}")
+    if (root.childStack.active.instance is MovieBrowserKmmRoot.Child.DetailScreen) {
+        (root.childStack.active.instance as MovieBrowserKmmRoot.Child.DetailScreen).detailsScreenComponent.onBackPressed()
     }
 }
 
@@ -69,13 +83,20 @@ fun AppDrawer() {
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun AppScaffoldContent(root: MovieBrowserKmmRoot,onHamburgerClicked: () -> Unit) {
+fun AppScaffoldContent(
+    root: MovieBrowserKmmRoot,
+    onHamburgerClicked: () -> Unit,
+    onBackPressed: () -> Unit
+) {
 
+    var backArrowVisibilityState by remember { mutableStateOf(false) }
     var bottomBarVisibilityState by rememberSaveable { (mutableStateOf(true)) }
     val topBarVisibilityState by rememberSaveable { (mutableStateOf(true)) }
     Scaffold(
         topBar = {
-            SetupTopBar(onHamburgerClicked, topBarVisibilityState)
+            SetupTopBar(onHamburgerClicked, topBarVisibilityState, backArrowVisibilityState) {
+                onBackPressed()
+            }
         },
         /*bottomBar = {
             SetupBottomBar(navController, bottomBarVisibilityState)
@@ -84,17 +105,20 @@ fun AppScaffoldContent(root: MovieBrowserKmmRoot,onHamburgerClicked: () -> Unit)
         Column(
             modifier = Modifier.padding(paddingValues)
         ) {
-            Children(root.childStack){
-                when(val child = it.instance){
-                    is MovieBrowserKmmRoot.Child.MainScreen ->{
+            Children(root.childStack) {
+                when (val child = it.instance) {
+                    is MovieBrowserKmmRoot.Child.MainScreen -> {
+                        backArrowVisibilityState = false
                         MovieList(child.mainScreenComponent)
                     }
 
-                    is MovieBrowserKmmRoot.Child.DetailScreen ->{
-
+                    is MovieBrowserKmmRoot.Child.DetailScreen -> {
+                        backArrowVisibilityState = true
+                        MovieDetailsScreen(child.detailsScreenComponent)
                     }
                 }
             }
+
         }
     }
 }
@@ -103,7 +127,9 @@ fun AppScaffoldContent(root: MovieBrowserKmmRoot,onHamburgerClicked: () -> Unit)
 @Composable
 fun SetupTopBar(
     onHamburgerClicked: () -> Unit,
-    topBarVisibilityState: Boolean
+    topBarVisibilityState: Boolean,
+    backArrowVisibilityState: Boolean,
+    onBackPressed: () -> Unit
 ) {
     val scope = rememberCoroutineScope()
     AnimatedVisibility(
@@ -114,16 +140,39 @@ fun SetupTopBar(
         TopAppBar(
             title = { Text(text = "Movie Buff"/*stringResource(id = R.string.app_name)*/) },
             navigationIcon = {
-                IconButton(
-                    onClick = {
-                        onHamburgerClicked()
-                    }) {
-                    Icon(
-                        painterResource("menu_top_icon.xml"),
-                        contentDescription = null
-                    )
-                }
-            },
+                if (backArrowVisibilityState) ShowBackArrow(onBackPressed) else ShowHamburgerIcon(
+                    onHamburgerClicked
+                )
+            }
+        )
+    }
+}
+
+@OptIn(ExperimentalResourceApi::class)
+@Composable
+fun ShowHamburgerIcon(onHamburgerClicked: () -> Unit) {
+    IconButton(
+        onClick = {
+            onHamburgerClicked()
+        }) {
+        Icon(
+            painterResource("menu_top_icon.xml"),
+            contentDescription = null
+        )
+    }
+}
+
+@OptIn(ExperimentalResourceApi::class)
+@Composable
+fun ShowBackArrow(onBackPressed: () -> Unit) {
+    IconButton(
+        onClick = {
+            println("back button clicked")
+            onBackPressed.invoke()
+        }) {
+        Icon(
+            painterResource("arrow_back.xml"),
+            contentDescription = null
         )
     }
 }

@@ -9,13 +9,13 @@ core = "1.9.0"
 imageLoading = "0.5.1"
 decompose = "2.0.0-compose-experimental-beta-01"
 essentyLifecycle = "1.1.0"
-
+kotlinDateTime = "0.4.0"
 
 [libraries]
 androidx-activity-compose = { module = "androidx.activity:activity-compose", version.ref = "activity" }
 androidx-appcompat = { module = "androidx.appcompat:appcompat", version.ref = "appcompat" }
 androidx-core-ktx = { module = "androidx.core:core-ktx", version.ref = "core" }
-
+kotlinx-datetime = { module = "org.jetbrains.kotlinx:kotlinx-datetime", version.ref = "kotlinDateTime" }
 image-loading = { module = "media.kamel:kamel-image",version.ref = "imageLoading" }
 
 kotlinx-coroutines-core = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-core", version.ref = "coroutines" }
@@ -27,9 +27,9 @@ ktor-client-okhttp = { module = "io.ktor:ktor-client-okhttp", version.ref = "kto
 
 ktor-client-content-negotiation = { module = "io.ktor:ktor-client-content-negotiation", version.ref = "ktor" }
 ktor-client-serialization-json = { module = "io.ktor:ktor-serialization-kotlinx-json", version.ref = "ktor" }
-ktor-client-logging = { module = "io.ktor:ktor-client-logging" , version.ref = "ktor"}
+ktor-client-logging = { module = "io.ktor:ktor-client-logging", version.ref = "ktor" }
 
-arkivanov-decompose = {module = "com.arkivanov.decompose:decompose" , version.ref = "decompose"}
-arkivanov-jetbrains-uiext = {module = "com.arkivanov.decompose:extensions-compose-jetbrains" , version.ref = "decompose"}
+arkivanov-decompose = { module = "com.arkivanov.decompose:decompose", version.ref = "decompose" }
+arkivanov-jetbrains-uiext = { module = "com.arkivanov.decompose:extensions-compose-jetbrains", version.ref = "decompose" }
 
 [plugins]

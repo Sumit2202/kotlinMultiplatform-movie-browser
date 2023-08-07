@@ -15,9 +15,7 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         val root = MovieBrowserKmmRootImpl(defaultComponentContext())
         setContent {
-            MyApplicationTheme {
-                mainView(root)
-            }
+            mainView(root)
         }
     }
 }

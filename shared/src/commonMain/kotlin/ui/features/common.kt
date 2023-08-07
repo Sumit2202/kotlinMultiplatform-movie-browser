@@ -21,63 +21,31 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import style.LightGreen
+import style.*
 
+enum class RatingBarColors(val highlightColor: Color, val surfaceColor: Color) {
+    GREEN(Green, LightGreen),
+    YELLOW(Yellow, LightYellow);
+}
 
-/*@Composable
-fun DisplayMovies(data: LazyPagingItems<MovieResult>, onItemClick: (id: Int) -> Unit) {
-    LazyColumn(
-        modifier = Modifier.padding(5.dp).background(Color.LightGray),
-        state = data.rememberLazyListState()
-    ) {
-        items(items = data, key = { it.id }) {
-            if (it != null) {
-                MovieRow(item = it, onItemClick)
-            }
+private fun getRatingBarColors(voteAverage: Double): RatingBarColors {
+    return when {
+        (voteAverage * 10).toInt() > 70 -> {
+            RatingBarColors.GREEN
         }
-        when (data.loadState.append) {
-            is LoadState.Error -> {
-                item {
-                    ErrorItem("Something went wrong!Pleas try again") {
-                        data.refresh()
-                    }
-                }
-            }
-            is LoadState.Loading -> {
-                item {
-                    LoadingItem()
-                }
-            }
-            is LoadState.NotLoading -> Unit
-        }
-
-        when (data.loadState.refresh) {
-            is LoadState.Error -> {
-                item {
-                    ErrorItem("Something went wrong!Pleas try again") {
-                        data.refresh()
-                    }
-                }
-            }
-            is LoadState.Loading -> {
-                item {
-                    LoadingItem()
-                }
-            }
-            is LoadState.NotLoading -> Unit
-        }
+        else -> RatingBarColors.YELLOW
     }
-}*/
-
+}
 
 @Composable
 fun AddVoteProgressBar(voteAverage: Double) {
+    val ratingBarColors = getRatingBarColors(voteAverage)
     Box(contentAlignment = Alignment.Center,
         modifier = Modifier
             .background(Color.Black, shape = CircleShape)
             .padding(1.dp)
-            .border(3.dp, LightGreen, CircleShape)
-            .layout() { measurable, constraints ->
+            .border(3.dp, ratingBarColors.surfaceColor, CircleShape)
+            .layout{ measurable, constraints ->
                 // Measure the composable
                 val placeable = measurable.measure(constraints)
 
@@ -96,7 +64,7 @@ fun AddVoteProgressBar(voteAverage: Double) {
 
             }) {
         CircularProgressIndicator(
-            progress = voteAverage.toFloat() / 10, color = Color.Green,
+            progress = voteAverage.toFloat() / 10, color = ratingBarColors.highlightColor,
         )
 
         Text(
@@ -147,19 +115,6 @@ fun LoadingItem() {
         )
     }
 }
-
-/*@Composable
-fun <T : Any> LazyPagingItems<T>.rememberLazyListState(): LazyListState {
-    // After recreation, LazyPagingItems first return 0 items, then the cached items.
-    // This behavior/issue is resetting the LazyListState scroll position.
-    // Below is a workaround. More info: https://issuetracker.google.com/issues/177245496.
-    return when (itemCount) {
-        // Return a different LazyListState instance.
-        0 -> remember(this) { LazyListState(0, 0) }
-        // Return rememberLazyListState (normal case).
-        else -> androidx.compose.foundation.lazy.rememberLazyListState()
-    }
-}*/
 
 @Composable
 fun ChipVerticalGrid(

@@ -1,4 +1,5 @@
 @file:Suppress("INLINE_FROM_HIGHER_PLATFORM")
+
 package ui.features
 
 import androidx.compose.animation.core.tween
@@ -12,7 +13,6 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -21,58 +21,50 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import data.PopularMoviesDataRepository
 import decompose.MainScreenComponent
 import domain.MovieListScreenState
 import domain.MovieResult
 import io.kamel.image.KamelImage
 import io.kamel.image.asyncPainterResource
 import io.ktor.http.*
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Job
-import kotlinx.coroutines.flow.single
-import kotlinx.coroutines.launch
-
-var pageNo = 1
+import util.OnBottomReached
 
 @Composable
 fun MovieList(mainScreenComponent: MainScreenComponent) {
     val state = mainScreenComponent.viewModel.state.collectAsState()
-    if(state.value is MovieListScreenState.Success){
-        LazyColumn(
-            modifier = Modifier
-                .padding(5.dp)
-                .background(Color.LightGray),
-            state = rememberLazyListState().apply {
-                OnBottomReached {
-                    mainScreenComponent.viewModel.loadMore()
+
+    LazyColumn(
+        modifier = Modifier
+            .padding(5.dp)
+            .background(Color.LightGray),
+        state = rememberLazyListState().apply {
+            OnBottomReached {
+                mainScreenComponent.viewModel.loadMore()
+            }
+        }
+    ) {
+        when (state.value) {
+            MovieListScreenState.Loading -> {
+                item {
+                    LoadingItem()
                 }
             }
-        ) {
-            val results = (state.value as MovieListScreenState.Success).getResults()
-            items(results) {
-                MovieRow(it) {
+            MovieListScreenState.Success -> {
+                val results = (state.value as MovieListScreenState.Success).getResults()
+                items(results) {
+                    MovieRow(it) {movieId ->
+                        mainScreenComponent.viewModel.onItemClicked(movieId)
+                    }
                 }
             }
         }
-    }
 
-}
-
-private fun loadData(
-    repo: PopularMoviesDataRepository,
-    data: SnapshotStateList<MovieResult>
-) {
-    CoroutineScope(Job()).launch {
-        val result = repo.fetchPopularMovies(pageNo++).single()
-        data.addAll(result)
     }
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun MovieRow(item: MovieResult, onItemClick: (id: Int) -> Unit) {
-    //println("title : ${item.title}")
     Box(modifier = Modifier.padding(5.dp)) {
         ElevatedCard(
             modifier = Modifier
@@ -81,7 +73,8 @@ fun MovieRow(item: MovieResult, onItemClick: (id: Int) -> Unit) {
             onClick = { onItemClick(item.id) }
         ) {
             Row {
-                val painterResource = asyncPainterResource(data = "https://image.tmdb.org/t/p/original${item.imageUrl}")
+                val painterResource =
+                    asyncPainterResource(data = "https://image.tmdb.org/t/p/original${item.imageUrl}")
                 KamelImage(
                     modifier = Modifier
                         .width(100.dp)
