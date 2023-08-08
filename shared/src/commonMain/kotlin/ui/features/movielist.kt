@@ -22,7 +22,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import decompose.MainScreenComponent
-import domain.MovieListScreenState
+import domain.ListState
 import domain.MovieResult
 import io.kamel.image.KamelImage
 import io.kamel.image.asyncPainterResource
@@ -31,8 +31,7 @@ import util.OnBottomReached
 
 @Composable
 fun MovieList(mainScreenComponent: MainScreenComponent) {
-    val state = mainScreenComponent.viewModel.state.collectAsState()
-
+    val movieList = mainScreenComponent.viewModel.movieLists
     LazyColumn(
         modifier = Modifier
             .padding(5.dp)
@@ -43,22 +42,29 @@ fun MovieList(mainScreenComponent: MainScreenComponent) {
             }
         }
     ) {
-        when (state.value) {
-            MovieListScreenState.Loading -> {
-                item {
-                    LoadingItem()
-                }
-            }
-            MovieListScreenState.Success -> {
-                val results = (state.value as MovieListScreenState.Success).getResults()
-                items(results) {
-                    MovieRow(it) {movieId ->
-                        mainScreenComponent.viewModel.onItemClicked(movieId)
-                    }
-                }
+
+        items(movieList, key = {it.id}) {
+            MovieRow(it) {movieId ->
+                mainScreenComponent.viewModel.onItemClicked(movieId)
             }
         }
 
+        item(
+            key = mainScreenComponent.viewModel.listState
+        ){
+            when(mainScreenComponent.viewModel.listState){
+                ListState.LOADING ->{
+                    LoadingItem()
+                }
+
+                ListState.PAGINATING -> {
+                    LoadingItem()
+                }
+                else ->{
+
+                }
+            }
+        }
     }
 }
 

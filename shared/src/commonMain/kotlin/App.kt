@@ -20,7 +20,13 @@ import org.jetbrains.compose.resources.painterResource
 import style.MovieBrowserKmmTheme
 import ui.features.MovieDetailsScreen
 import ui.features.MovieList
-
+import androidx.compose.animation.core.tween
+import androidx.compose.foundation.background
+import androidx.compose.ui.layout.ContentScale
+import io.kamel.image.KamelImage
+import io.kamel.image.asyncPainterResource
+import ui.features.DrawerOptions
+import ui.features.UserImageArea
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun App(root: MovieBrowserKmmRoot) {
@@ -63,21 +69,12 @@ private fun backPressed(root: MovieBrowserKmmRoot) {
 
 @Composable
 fun AppDrawer() {
-    Row {
-        Box(
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(100.dp)
-                .padding(10.dp)
-                .border(2.dp, Color.Gray)
-        ) {
-            Text(
-                modifier = Modifier
-                    .fillMaxSize(),
-                textAlign = TextAlign.Center,
-                text = "Hi, All good!"
-            )
-        }
+    Column(
+        modifier = Modifier.padding(10.dp)
+    ) {
+        UserImageArea()
+        Spacer(modifier = Modifier.height(10.dp).fillMaxWidth())
+        DrawerOptions()
     }
 }
 
