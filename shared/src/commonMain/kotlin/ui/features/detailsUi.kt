@@ -1,12 +1,12 @@
-@file:Suppress("INLINE_FROM_HIGHER_PLATFORM")
-
 package ui.features
 
-import androidx.compose.animation.*
+import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.MutableTransitionState
-import androidx.compose.animation.core.tween
+import androidx.compose.animation.slideInVertically
 import androidx.compose.foundation.*
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.lazy.LazyRow
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.InlineTextContent
@@ -15,7 +15,10 @@ import androidx.compose.material3.Card
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
-import androidx.compose.runtime.*
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
@@ -30,10 +33,9 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.zIndex
+import com.seiko.imageloader.rememberAsyncImagePainter
 import decompose.DetailsScreenComponent
 import domain.*
-import io.kamel.image.KamelImage
-import io.kamel.image.asyncPainterResource
 import org.jetbrains.compose.resources.ExperimentalResourceApi
 import org.jetbrains.compose.resources.painterResource
 
@@ -69,46 +71,33 @@ fun ShowCasts(casts: List<MovieCast>) {
             .padding(5.dp)
     ) {
         ShowHeaderText("Top Actors")
-        Row(
+        LazyRow(
             modifier = Modifier
                 .fillMaxWidth()
                 .height(150.dp)
-                .horizontalScroll(rememberScrollState())
                 .padding(top = 5.dp),
             horizontalArrangement = Arrangement.spacedBy(10.dp)
         ) {
-            casts.forEach {
+            items(casts){
                 Column(
                     modifier = Modifier
                         .padding(start = 5.dp, end = 5.dp),
                     horizontalAlignment = Alignment.CenterHorizontally
                 ) {
 
-                    val painterResource =
-                        asyncPainterResource(data = "https://image.tmdb.org/t/p/original${it.avatarPath}")
-                    KamelImage(
+                    val painterResource = rememberAsyncImagePainter("https://image.tmdb.org/t/p/original${it.avatarPath}")
+
+                    Image(
+                        painter = painterResource,
                         modifier = Modifier
                             .width(80.dp)
                             .height(100.dp)
                             .clip(RoundedCornerShape(10)),
-                        resource = painterResource,
                         contentScale = ContentScale.Crop,
-                        contentDescription = "reviews",
-                        animationSpec = tween()
+                        contentDescription = "reviews"
                     )
-                    /*AsyncImage(
-                        model = ImageRequest.Builder(LocalContext.current)
-                            .data("https://image.tmdb.org/t/p/original${it.avatarPath}")
-                            .crossfade(true)
-                            .error(R.drawable.user_avtar)
-                            .build(),
-                        contentDescription = null,
-                        contentScale = ContentScale.Crop,
-                        modifier = Modifier
-                            .width(80.dp)
-                            .height(100.dp)
-                            .clip(RoundedCornerShape(10))
-                    )*/
+
+
                     Text(
                         modifier = Modifier
                             .fillMaxWidth()
@@ -175,7 +164,7 @@ fun ShowMovieDetails(movieDetailsModel: MovieDetailsModel) {
     ShowKeyWords(movieDetailsModel.keywords)
     ShowCasts(movieDetailsModel.topCast)
     ShowPostersAndBackDrops(movieDetailsModel.posters, movieDetailsModel.backdrops)
-    //ShowVideos(movieDetailsModel.videos)
+
 }
 
 @Composable
@@ -183,113 +172,57 @@ fun ShowPostersAndBackDrops(posters: List<String>, backdrops: List<String>) {
     Column(modifier = Modifier.padding(5.dp)) {
         if (posters.isNotEmpty()) {
             ShowHeaderText("Posters")
-            Row(
+            LazyRow(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .height(200.dp)
-                    .horizontalScroll(rememberScrollState()),
+                    .height(200.dp),
                 horizontalArrangement = Arrangement.spacedBy(5.dp)
             ) {
-                posters.forEach {
-                    val painterResource =
-                        asyncPainterResource(data = "https://image.tmdb.org/t/p/original$it")
-                    KamelImage(
+                items(posters){
+                    val painterResource = rememberAsyncImagePainter("https://image.tmdb.org/t/p/original$it")
+
+                    Image(
+                        painter = painterResource,
                         modifier = Modifier
                             .width(200.dp)
                             .height(200.dp),
-                        resource = painterResource,
                         contentScale = ContentScale.Crop,
-                        contentDescription = "reviews",
-                        animationSpec = tween()
+                        contentDescription = "reviews"
                     )
-                    /*
-                    AsyncImage(
-                        model = ImageRequest.Builder(LocalContext.current)
-                            .data("https://image.tmdb.org/t/p/original$it")
-                            .crossfade(true)
-                            .error(R.drawable.user_avtar)
-                            .build(),
-                        contentDescription = null,
-                        contentScale = ContentScale.Crop,
-                        modifier = Modifier
-                            .width(200.dp)
-                            .height(200.dp)
-                    )*/
+
+
                 }
             }
         }
 
         if (backdrops.isNotEmpty()) {
             ShowHeaderText("Backdrops")
-            Row(
+            LazyRow(
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(top = 5.dp)
-                    .height(200.dp)
-                    .horizontalScroll(rememberScrollState()),
+                    .height(200.dp),
                 horizontalArrangement = Arrangement.spacedBy(5.dp)
             ) {
-                backdrops.forEach {
-                    val painterResource =
-                        asyncPainterResource(data = "https://image.tmdb.org/t/p/original$it")
-                    KamelImage(
+                items(backdrops){
+                    val painterResource = rememberAsyncImagePainter("https://image.tmdb.org/t/p/original$it")
+
+                    Image(
+                        painter = painterResource,
                         modifier = Modifier
                             .width(300.dp)
                             .height(200.dp),
-                        resource = painterResource,
                         contentScale = ContentScale.Crop,
-                        contentDescription = "reviews",
-                        animationSpec = tween()
+                        contentDescription = "reviews"
                     )
-                    /*AsyncImage(
-                        model = ImageRequest.Builder(LocalContext.current)
-                            .data("https://image.tmdb.org/t/p/original$it")
-                            .crossfade(true)
-                            .error(R.drawable.user_avtar)
-                            .build(),
-                        contentDescription = null,
-                        contentScale = ContentScale.Crop,
-                        modifier = Modifier
-                            .width(300.dp)
-                            .height(200.dp)
-                    )*/
+
+
                 }
             }
         }
     }
 }
-/*
-@Composable
-fun ShowVideos(videos: List<Videos>) {
-    if(videos.isNotEmpty()){
-        ShowHeaderText(title = "Videos")
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(200.dp)
-                .padding(5.dp)
-                .horizontalScroll(rememberScrollState()),
-            horizontalArrangement = Arrangement.spacedBy(5.dp)
-        ) {
-            videos.forEach { videoId ->
-                Box(modifier = Modifier.width(250.dp)) {
-                    AndroidView(factory = {
-                        val view = YouTubePlayerView(it)
-                        view.addYouTubePlayerListener(
-                            object : AbstractYouTubePlayerListener() {
-                                override fun onReady(youTubePlayer: YouTubePlayer) {
-                                    super.onReady(youTubePlayer)
-                                    youTubePlayer.cueVideo(videoId.key, 0f)
-                                }
-                            }
-                        )
-                        view
-                    })
-                }
-            }
-        }
-    }
-}*/
+
 
 @Composable
 fun ShowReviews(reviews: List<MovieReview>) {
@@ -299,14 +232,13 @@ fun ShowReviews(reviews: List<MovieReview>) {
             .padding(5.dp)
     ) {
         ShowHeaderText(title = "Reviews(${reviews.size})")
-        Row(
+        LazyRow(
             modifier = Modifier
                 .fillMaxWidth()
-                .horizontalScroll(rememberScrollState())
                 .padding(top = 5.dp),
             horizontalArrangement = Arrangement.spacedBy(5.dp)
         ) {
-            reviews.forEach {
+            items(reviews, key = {it.url}){
                 ShowReviewCards(it)
             }
         }
@@ -322,31 +254,20 @@ fun ShowReviewCards(review: MovieReview) {
         onClick = { }
     ) {
         Row {
-            val painterResource =
-                asyncPainterResource(data = "https://image.tmdb.org/t/p/original${review.avatarPath}")
-            KamelImage(
+
+            val painterResource = rememberAsyncImagePainter("https://image.tmdb.org/t/p/original${review.avatarPath}")
+
+            Image(
+                painter = painterResource,
                 modifier = Modifier
                     .width(50.dp)
                     .height(50.dp)
                     .clip(CircleShape),
-                resource = painterResource,
                 contentScale = ContentScale.Crop,
-                contentDescription = "reviews",
-                animationSpec = tween()
+                contentDescription = "reviews"
             )
-            /*AsyncImage(
-                model = ImageRequest.Builder(LocalContext.current)
-                    .data("https://image.tmdb.org/t/p/original${review.avatarPath}")
-                    .crossfade(true)
-                    .error(R.drawable.user_avtar)
-                    .build(),
-                contentDescription = null,
-                contentScale = ContentScale.Crop,
-                modifier = Modifier
-                    .width(50.dp)
-                    .height(50.dp)
-                    .clip(CircleShape)
-            )*/
+
+
             Column(modifier = Modifier.padding(5.dp)) {
                 Row {
                     Text(text = review.title)
@@ -460,30 +381,20 @@ private fun ShowImages(movieDetailsModel: MovieDetailsModel) {
         contentAlignment = Alignment.CenterStart
     ) {
 
-        val painterResource =
-            asyncPainterResource(data = "https://image.tmdb.org/t/p/original${movieDetailsModel.backDropImage}")
-        KamelImage(
+        val painterResource = rememberAsyncImagePainter("https://image.tmdb.org/t/p/original${movieDetailsModel.backDropImage}")
+
+        Image(
+            painter = painterResource,
             modifier = Modifier
                 .fillMaxWidth()
                 .fillMaxHeight()
                 .alpha(0.3f),
-            resource = painterResource,
             contentScale = ContentScale.FillWidth,
-            contentDescription = "movieImages",
-            animationSpec = tween()
+            contentDescription = "movieImages"
         )
-        /*AsyncImage(
-            model = ImageRequest.Builder(LocalContext.current)
-                .data("https://image.tmdb.org/t/p/original${movieDetailsModel.backDropImage}")
-                .crossfade(true)
-                .build(),
-            contentDescription = null,
-            contentScale = ContentScale.FillWidth,
-            modifier = Modifier
-                .fillMaxWidth()
-                .fillMaxHeight()
-                .alpha(0.3f)
-        )*/
+
+
+
         Row(
             modifier = Modifier
                 .fillMaxWidth()
@@ -503,34 +414,21 @@ private fun ShowImages(movieDetailsModel: MovieDetailsModel) {
                 }
             ) {
 
-                val painterResource =
-                    asyncPainterResource(data = "https://image.tmdb.org/t/p/original${movieDetailsModel.posterImage}")
-                KamelImage(
+                val painterResource = rememberAsyncImagePainter("https://image.tmdb.org/t/p/original${movieDetailsModel.posterImage}")
+
+                Image(
+                    painter = painterResource,
                     modifier = Modifier
                         .width(120.dp)
                         .height(180.dp)
                         .padding(start = 5.dp)
                         .clip(RoundedCornerShape(10.dp))
                         .zIndex(10f),
-                    resource = painterResource,
                     contentScale = ContentScale.Crop,
-                    contentDescription = "poster image",
-                    animationSpec = tween()
+                    contentDescription = "movieImages"
                 )
-                /*AsyncImage(
-                    model = ImageRequest.Builder(LocalContext.current)
-                        .data("https://image.tmdb.org/t/p/original${movieDetailsModel.posterImage}")
-                        .crossfade(true)
-                        .build(),
-                    contentDescription = null,
-                    contentScale = ContentScale.Crop,
-                    modifier = Modifier
-                        .width(120.dp)
-                        .height(180.dp)
-                        .padding(start = 5.dp)
-                        .clip(RoundedCornerShape(10.dp))
-                        .zIndex(10f)
-                )*/
+
+
             }
             Column(modifier = Modifier.padding(5.dp)) {
                 Text(

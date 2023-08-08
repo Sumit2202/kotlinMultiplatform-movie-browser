@@ -2,7 +2,8 @@
 
 package ui.features
 
-import androidx.compose.animation.core.tween
+import androidx.compose.foundation.Image
+import com.seiko.imageloader.rememberAsyncImagePainter
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
@@ -24,8 +25,6 @@ import androidx.compose.ui.unit.sp
 import decompose.MainScreenComponent
 import domain.ListState
 import domain.MovieResult
-import io.kamel.image.KamelImage
-import io.kamel.image.asyncPainterResource
 import io.ktor.http.*
 import util.OnBottomReached
 
@@ -79,16 +78,16 @@ fun MovieRow(item: MovieResult, onItemClick: (id: Int) -> Unit) {
             onClick = { onItemClick(item.id) }
         ) {
             Row {
-                val painterResource =
-                    asyncPainterResource(data = "https://image.tmdb.org/t/p/original${item.imageUrl}")
-                KamelImage(
+                val painterResource = rememberAsyncImagePainter("https://image.tmdb.org/t/p/original${item.imageUrl}")
+                Image(
+                    painter = painterResource,
                     modifier = Modifier
                         .width(100.dp)
                         .height(100.dp),
-                    resource = painterResource,
+
                     contentScale = ContentScale.Crop,
-                    contentDescription = "movieImages",
-                    animationSpec = tween()
+                    contentDescription = "",
+
                 )
                 Column(
                     modifier = Modifier
