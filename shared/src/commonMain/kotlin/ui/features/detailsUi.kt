@@ -7,7 +7,6 @@ import androidx.compose.foundation.*
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.InlineTextContent
 import androidx.compose.foundation.text.appendInlineContent
@@ -30,6 +29,7 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.zIndex
+import com.seiko.imageloader.ImageRequestState
 import com.seiko.imageloader.rememberAsyncImagePainter
 import decompose.DetailsScreenComponent
 import domain.*
@@ -43,11 +43,12 @@ fun MovieDetailsScreen(component: DetailsScreenComponent) {
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .verticalScroll(rememberScrollState())
+            .verticalScroll(rememberScrollState()),
+        verticalArrangement = Arrangement.Center
     ) {
         when (movieDetailState) {
             MovieDetailsUiState.Loading -> {
-                CircularProgressIndicator()
+                LoadingItem()
             }
             is MovieDetailsUiState.Success -> {
                 ShowMovieDetails((movieDetailState as MovieDetailsUiState.Success).movieDetails) {
@@ -96,7 +97,18 @@ fun ShowCasts(casts: List<MovieCast>) {
                         contentDescription = "reviews"
                     )
 
-
+                    /* val painterResource =
+                         asyncPainterResource(data = "https://image.tmdb.org/t/p/original${it.avatarPath}")
+                     KamelImage(
+                         modifier = Modifier
+                             .width(80.dp)
+                             .height(100.dp)
+                             .clip(RoundedCornerShape(10)),
+                         resource = painterResource,
+                         contentScale = ContentScale.Crop,
+                         contentDescription = "reviews",
+                         animationSpec = tween()
+                     )*/
                     Text(
                         modifier = Modifier
                             .fillMaxWidth()
@@ -184,7 +196,6 @@ fun ShowPostersAndBackDrops(posters: List<String>, backdrops: List<String>) {
                         contentScale = ContentScale.Crop,
                         contentDescription = "reviews"
                     )
-
                 }
             }
         }
@@ -210,7 +221,6 @@ fun ShowPostersAndBackDrops(posters: List<String>, backdrops: List<String>) {
                         contentScale = ContentScale.Crop,
                         contentDescription = "reviews"
                     )
-
                 }
             }
         }
@@ -251,28 +261,35 @@ fun ShowReviewCards(review: MovieReview) {
             val painterResource =
                 rememberAsyncImagePainter("https://image.tmdb.org/t/p/original${review.avatarPath}")
 
-            Image(
-                painter = painterResource,
-                modifier = Modifier
-                    .width(50.dp)
-                    .height(50.dp)
-                    .clip(CircleShape),
-                contentScale = ContentScale.Crop,
-                contentDescription = "reviews"
-            )
+            when(painterResource.requestState){
+                is ImageRequestState.Loading -> {
+                    CircularProgressIndicator()
+                }
+                is ImageRequestState.Failure -> {
+                    Image(
+                        painter = painterResource("reviewer_avtar.png"),
+                        modifier = Modifier
+                            .width(50.dp)
+                            .height(50.dp)
+                            .clip(RoundedCornerShape(10.dp))
+                            .border(2.dp,Color.LightGray),
+                        contentScale = ContentScale.Crop,
+                        contentDescription = "reviews"
+                    )
+                }
+                is ImageRequestState.Success -> {
+                    Image(
+                        painter = painterResource,
+                        modifier = Modifier
+                            .width(50.dp)
+                            .height(50.dp)
+                            .clip(RoundedCornerShape(10.dp)),
+                        contentScale = ContentScale.Crop,
+                        contentDescription = "reviews"
+                    )
+                }
+            }
 
-            /*val painterResource =
-                asyncPainterResource(data = "https://image.tmdb.org/t/p/original${review.avatarPath}")
-            KamelImage(
-                modifier = Modifier
-                    .width(50.dp)
-                    .height(50.dp)
-                    .clip(CircleShape),
-                resource = painterResource,
-                contentScale = ContentScale.Crop,
-                contentDescription = "reviews",
-                animationSpec = tween()
-            )*/
             Column(modifier = Modifier.padding(5.dp)) {
                 Row {
                     Text(text = review.title)
@@ -441,6 +458,21 @@ private fun ShowImages(movieDetailsModel: MovieDetailsModel, onBackPressed: () -
                     contentScale = ContentScale.Crop,
                     contentDescription = "movieImages"
                 )
+
+                /*val painterResource =
+                    asyncPainterResource(data = "https://image.tmdb.org/t/p/original${movieDetailsModel.posterImage}")
+                KamelImage(
+                    modifier = Modifier
+                        .width(120.dp)
+                        .height(180.dp)
+                        .padding(start = 5.dp)
+                        .clip(RoundedCornerShape(10.dp))
+                        .zIndex(10f),
+                    resource = painterResource,
+                    contentScale = ContentScale.Crop,
+                    contentDescription = "poster image",
+                    animationSpec = tween()
+                )*/
             }
             Column(modifier = Modifier.padding(5.dp)) {
                 Text(

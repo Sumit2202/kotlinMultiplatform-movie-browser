@@ -103,8 +103,7 @@ fun ErrorItem(error: String, onRefreshClick: () -> Unit) {
 fun LoadingItem() {
     Box(
         modifier = Modifier
-            .fillMaxWidth()
-            .fillMaxHeight(),
+            .fillMaxWidth(),
         contentAlignment = Alignment.Center
     ) {
         CircularProgressIndicator(
