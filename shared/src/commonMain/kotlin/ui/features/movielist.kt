@@ -1,31 +1,31 @@
-@file:Suppress("INLINE_FROM_HIGHER_PLATFORM")
-
 package ui.features
 
 import androidx.compose.foundation.Image
-import com.seiko.imageloader.rememberAsyncImagePainter
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
-import androidx.compose.material3.ElevatedCard
-import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.Text
+import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.draw.drawWithCache
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.geometry.Rect
+import androidx.compose.ui.graphics.*
+import androidx.compose.ui.graphics.drawscope.clipPath
 import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.*
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.seiko.imageloader.rememberAsyncImagePainter
 import decompose.MainScreenComponent
 import domain.ListState
 import domain.MovieResult
-import io.ktor.http.*
+import org.jetbrains.compose.resources.ExperimentalResourceApi
+import org.jetbrains.compose.resources.painterResource
 import util.OnBottomReached
 
 @Composable
@@ -41,25 +41,25 @@ fun MovieList(mainScreenComponent: MainScreenComponent) {
             }
         }
     ) {
-
-        items(movieList, key = {it.id}) {
-            MovieRow(it) {movieId ->
+        items(movieList, key = { it.id }) {
+            MovieRow(it) { movieId ->
                 mainScreenComponent.viewModel.onItemClicked(movieId)
             }
         }
-
         item(
             key = mainScreenComponent.viewModel.listState
-        ){
-            when(mainScreenComponent.viewModel.listState){
-                ListState.LOADING ->{
+        ) {
+            when (mainScreenComponent.viewModel.listState) {
+                ListState.LOADING -> {
                     LoadingItem()
                 }
 
                 ListState.PAGINATING -> {
-                    LoadingItem()
+                    LinearProgressIndicator(
+                        modifier = Modifier.padding(top = 5.dp, bottom = 5.dp).fillMaxWidth()
+                    )
                 }
-                else ->{
+                else -> {
 
                 }
             }
@@ -67,28 +67,20 @@ fun MovieList(mainScreenComponent: MainScreenComponent) {
     }
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
+@OptIn(ExperimentalMaterial3Api::class, ExperimentalResourceApi::class)
 @Composable
 fun MovieRow(item: MovieResult, onItemClick: (id: Int) -> Unit) {
     Box(modifier = Modifier.padding(5.dp)) {
         ElevatedCard(
             modifier = Modifier
                 .fillMaxWidth()
-                .height(100.dp),
+                .height(150.dp),
             onClick = { onItemClick(item.id) }
         ) {
             Row {
-                val painterResource = rememberAsyncImagePainter("https://image.tmdb.org/t/p/original${item.imageUrl}")
-                Image(
-                    painter = painterResource,
-                    modifier = Modifier
-                        .width(100.dp)
-                        .height(100.dp),
 
-                    contentScale = ContentScale.Crop,
-                    contentDescription = "",
+                ShowMovieImage(item.imageUrl, item.voteAverage)
 
-                )
                 Column(
                     modifier = Modifier
                         .padding(5.dp)
@@ -103,10 +95,18 @@ fun MovieRow(item: MovieResult, onItemClick: (id: Int) -> Unit) {
                     )
                     Row {
                         Column {
-                            Text(text = "Releasing On:${item.releaseDate}")
-                            Text(text = "Popularity:${item.popularity}")
+                            Row(horizontalArrangement = Arrangement.Center) {
+                                Icon(painter = painterResource("date_range.xml"), "Release date")
+                                Text(text = item.releaseDate)
+                            }
+
+                            Text(
+                                text = item.overview,
+                                maxLines = 3,
+                                overflow = TextOverflow.Ellipsis
+                            )
                         }
-                        Row(
+                        /*Row(
                             modifier = Modifier
                                 .fillMaxHeight()
                                 .fillMaxWidth(),
@@ -114,11 +114,78 @@ fun MovieRow(item: MovieResult, onItemClick: (id: Int) -> Unit) {
                             verticalAlignment = Alignment.CenterVertically
                         ) {
 
-                            AddVoteProgressBar(item.voteAverage)
-                        }
+                        }*/
                     }
                 }
             }
         }
     }
 }
+
+
+@OptIn(ExperimentalTextApi::class)
+@Composable
+private fun ShowMovieImage(path: String, voteAverage: Double) {
+    val painterResource =
+        rememberAsyncImagePainter("https://image.tmdb.org/t/p/original$path")
+    val ratingBarColors = getRatingBarColors(voteAverage)
+    val measurer = rememberTextMeasurer()
+    Image(
+        painter = painterResource,
+        modifier = Modifier
+            .width(120.dp)
+            .height(150.dp)
+            .aspectRatio(1f)
+            .padding(3.dp)
+            .graphicsLayer {
+                compositingStrategy = CompositingStrategy.Offscreen
+            }
+            .drawWithCache {
+                val path = Path()
+                path.addOval(
+                    Rect(
+                        topLeft = Offset.Zero,
+                        bottomRight = Offset(size.width, size.height)
+                    )
+                )
+                onDrawWithContent {
+                    clipPath(path) {
+                        this@onDrawWithContent.drawContent()
+                    }
+                    val dotSize = size.width / 8f
+
+                    drawCircle(
+                        Color.Black,
+                        radius = dotSize,
+                        center = Offset(
+                            x = size.width - dotSize,
+                            y = size.height - dotSize
+                        ),
+                        blendMode = BlendMode.Color
+                    )
+                    drawCircle(
+                        ratingBarColors.highlightColor, radius = dotSize * 0.8f,
+                        center = Offset(
+                            x = size.width - dotSize,
+                            y = size.height - dotSize
+                        )
+                    )
+                    drawText(
+                        textMeasurer = measurer,
+                        text = "${(voteAverage * 10).toInt()}%",
+                        style = TextStyle(
+                            color = Color.White ,
+                            fontSize = 10.sp
+                        ),
+                        topLeft = Offset(
+                            x = size.width - dotSize - 20,
+                            y = size.height - dotSize - 20
+                        )
+                    )
+                }
+            },
+        contentScale = ContentScale.Crop,
+        contentDescription = ""
+    )
+}
+

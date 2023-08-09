@@ -22,7 +22,9 @@ class MovieDetailsViewModel(
 
     private fun fetchMovieDetails() {
         viewModelScope.launch {
-            repo.getMovieDetails(movieId).collect {
+            repo.getMovieDetails(movieId).catch {
+                _movieDetailsState.value = MovieDetailsUiState.Error
+            }.collect {
                 _movieDetailsState.value = MovieDetailsUiState.Success(it)
             }
         }

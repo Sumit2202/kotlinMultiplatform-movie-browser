@@ -20,6 +20,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.text.*
@@ -56,12 +57,13 @@ fun MovieDetailsScreen(component: DetailsScreenComponent) {
                 }
             }
             else -> {
-                Text("Error")
+                ErrorItem("Something went wrong"){}
             }
         }
     }
 }
 
+@OptIn(ExperimentalResourceApi::class)
 @Composable
 fun ShowCasts(casts: List<MovieCast>) {
     Column(
@@ -87,28 +89,35 @@ fun ShowCasts(casts: List<MovieCast>) {
                     val painterResource =
                         rememberAsyncImagePainter("https://image.tmdb.org/t/p/original${it.avatarPath}")
 
-                    Image(
-                        painter = painterResource,
-                        modifier = Modifier
-                            .width(80.dp)
-                            .height(100.dp)
-                            .clip(RoundedCornerShape(10)),
-                        contentScale = ContentScale.Crop,
-                        contentDescription = "reviews"
-                    )
-
-                    /* val painterResource =
-                         asyncPainterResource(data = "https://image.tmdb.org/t/p/original${it.avatarPath}")
-                     KamelImage(
-                         modifier = Modifier
-                             .width(80.dp)
-                             .height(100.dp)
-                             .clip(RoundedCornerShape(10)),
-                         resource = painterResource,
-                         contentScale = ContentScale.Crop,
-                         contentDescription = "reviews",
-                         animationSpec = tween()
-                     )*/
+                    when(painterResource.requestState){
+                        is ImageRequestState.Loading -> {
+                            CircularProgressIndicator()
+                        }
+                        is ImageRequestState.Failure -> {
+                            Image(
+                                painter = painterResource("reviewer_avtar.png"),
+                                modifier = Modifier
+                                    .width(80.dp)
+                                    .height(100.dp)
+                                    .clip(RectangleShape)
+                                    .border(2.dp, color = Color.DarkGray),
+                                contentScale = ContentScale.FillBounds,
+                                contentDescription = "reviews"
+                            )
+                        }
+                        is ImageRequestState.Success -> {
+                            Image(
+                                painter = painterResource,
+                                modifier = Modifier
+                                    .width(80.dp)
+                                    .height(100.dp)
+                                    .clip(RectangleShape)
+                                    .border(2.dp, color = Color.DarkGray),
+                                contentScale = ContentScale.Crop,
+                                contentDescription = "reviews"
+                            )
+                        }
+                    }
                     Text(
                         modifier = Modifier
                             .fillMaxWidth()
@@ -171,6 +180,7 @@ fun ShowMovieDetails(movieDetailsModel: MovieDetailsModel, onBackPressed: () -> 
     }
     ShowCasts(movieDetailsModel.topCast)
     ShowPostersAndBackDrops(movieDetailsModel.posters, movieDetailsModel.backdrops)
+    //ShowVideos(movieDetailsModel.videos)
 }
 
 @Composable
@@ -289,7 +299,6 @@ fun ShowReviewCards(review: MovieReview) {
                     )
                 }
             }
-
             Column(modifier = Modifier.padding(5.dp)) {
                 Row {
                     Text(text = review.title)
@@ -319,7 +328,6 @@ fun ShowReviewCards(review: MovieReview) {
                 Text(text = review.updatedAt)
             }
         }
-        println("what ${review.content}")
         Text(
             text = review.content,
             maxLines = 2,
@@ -380,6 +388,7 @@ private fun ShowOverview(overview: String, vote: Double) {
         appendInlineContent(id = "imageId")
         append(overview)
     }
+
     val inlineContentMap = mapOf(
         "imageId" to InlineTextContent(
             Placeholder(40.sp, 40.sp, PlaceholderVerticalAlign.TextCenter)
@@ -422,7 +431,6 @@ private fun ShowImages(movieDetailsModel: MovieDetailsModel, onBackPressed: () -
             contentScale = ContentScale.Crop,
             contentDescription = "movieImages"
         )
-
         Row(
             modifier = Modifier
                 .padding(top = 50.dp)
@@ -458,21 +466,6 @@ private fun ShowImages(movieDetailsModel: MovieDetailsModel, onBackPressed: () -
                     contentScale = ContentScale.Crop,
                     contentDescription = "movieImages"
                 )
-
-                /*val painterResource =
-                    asyncPainterResource(data = "https://image.tmdb.org/t/p/original${movieDetailsModel.posterImage}")
-                KamelImage(
-                    modifier = Modifier
-                        .width(120.dp)
-                        .height(180.dp)
-                        .padding(start = 5.dp)
-                        .clip(RoundedCornerShape(10.dp))
-                        .zIndex(10f),
-                    resource = painterResource,
-                    contentScale = ContentScale.Crop,
-                    contentDescription = "poster image",
-                    animationSpec = tween()
-                )*/
             }
             Column(modifier = Modifier.padding(5.dp)) {
                 Text(
@@ -500,7 +493,6 @@ private fun ShowImages(movieDetailsModel: MovieDetailsModel, onBackPressed: () -
 fun ShowBackArrow(onBackPressed: () -> Unit) {
     IconButton(
         onClick = {
-            println("back button clicked")
             onBackPressed.invoke()
         }) {
         Icon(
