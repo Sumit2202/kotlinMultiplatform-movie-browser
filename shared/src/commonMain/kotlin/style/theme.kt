@@ -74,7 +74,7 @@ private val DarkColors = darkColorScheme(
 fun MovieBrowserKmmTheme(
     content: @Composable () -> Unit
 ) {
-    val colorScheme = DarkColors
+    val colorScheme = LightColors
     MaterialTheme(
         colorScheme = colorScheme,
         typography = Typography,
