@@ -19,7 +19,8 @@ import ui.features.MovieDetailsScreen
 import ui.features.MovieList
 import ui.features.UserImageArea
 import util.generateImageLoader
-
+import androidx.compose.ui.graphics.Color
+import androidx.compose.foundation.background
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -57,11 +58,9 @@ fun App(root: MovieBrowserKmmRoot) {
 
 @Composable
 fun AppDrawer() {
-    Column(
-        modifier = Modifier.padding(10.dp)
-    ) {
+    Column {
         UserImageArea()
-        Spacer(modifier = Modifier.height(10.dp).fillMaxWidth())
+        Spacer(modifier = Modifier.fillMaxWidth().height(2.dp).background(MaterialTheme.colorScheme.primary))
         DrawerOptions()
     }
 }
@@ -82,7 +81,7 @@ fun AppScaffoldContent(
         },
     ) { paddingValues ->
         Column(
-            modifier = Modifier.padding(paddingValues)
+            modifier = Modifier.padding(paddingValues).background(Color.LightGray)
         ) {
             Children(root.childStack) {
                 when (val child = it.instance) {
@@ -119,9 +118,6 @@ fun SetupTopBar(
         TopAppBar(
             title = { Text(text = "Movie Buff"/*stringResource(id = R.string.app_name)*/) },
             navigationIcon = {
-                /*if (backArrowVisibilityState) ShowBackArrow(onBackPressed) else ShowHamburgerIcon(
-                    onHamburgerClicked
-                )*/
                 ShowHamburgerIcon(
                     onHamburgerClicked
                 )
