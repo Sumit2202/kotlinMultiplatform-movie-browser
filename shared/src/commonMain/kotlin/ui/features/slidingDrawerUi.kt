@@ -33,7 +33,7 @@ fun UserImageArea() {
     ) {
         Row(
         ) {
-            val painterResource = rememberAsyncImagePainter("https://www.themoviedb.org/t/p/w600_and_h900_bestv2/rQtUWshSz2no41OXniyNJxSoBhf.jpg")
+            val painterResource = rememberAsyncImagePainter("https://i.insider.com/639a3ecf27c0a700193e2f24?width=1000&format=jpeg&auto=webp")
 
             Image(
                 painter = painterResource,

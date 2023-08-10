@@ -116,7 +116,7 @@ fun SetupTopBar(
         exit = slideOutVertically(targetOffsetY = { -it }),
     ) {
         TopAppBar(
-            title = { Text(text = "Movie Buff"/*stringResource(id = R.string.app_name)*/) },
+            title = { Text(text = "Movie Browser KMM"/*stringResource(id = R.string.app_name)*/) },
             navigationIcon = {
                 ShowHamburgerIcon(
                     onHamburgerClicked

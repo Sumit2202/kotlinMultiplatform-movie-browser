@@ -496,7 +496,7 @@ fun ShowBackArrow(onBackPressed: () -> Unit) {
             onBackPressed.invoke()
         }) {
         Icon(
-            painterResource("arrow_back.xml"),
+            painterResource("arrow_black.xml"),
             contentDescription = null
         )
     }

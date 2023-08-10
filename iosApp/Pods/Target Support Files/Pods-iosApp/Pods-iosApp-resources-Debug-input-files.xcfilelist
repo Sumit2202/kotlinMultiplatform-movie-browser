@@ -1,5 +1,7 @@
 ${PODS_ROOT}/Target Support Files/Pods-iosApp/Pods-iosApp-resources.sh
 ${PODS_ROOT}/../../shared/src/commonMain/resources/arrow_black.xml
+${PODS_ROOT}/../../shared/src/commonMain/resources/date_range.xml
 ${PODS_ROOT}/../../shared/src/commonMain/resources/menu_top_icon.xml
 ${PODS_ROOT}/../../shared/src/commonMain/resources/outline_home.xml
+${PODS_ROOT}/../../shared/src/commonMain/resources/reviewer_avtar.png
 ${PODS_ROOT}/../../shared/src/commonMain/resources/star.png

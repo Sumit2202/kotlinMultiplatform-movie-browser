@@ -98,14 +98,18 @@ EOM
 }
 if [[ "$CONFIGURATION" == "Debug" ]]; then
   install_resource "${PODS_ROOT}/../../shared/src/commonMain/resources/arrow_black.xml"
+  install_resource "${PODS_ROOT}/../../shared/src/commonMain/resources/date_range.xml"
   install_resource "${PODS_ROOT}/../../shared/src/commonMain/resources/menu_top_icon.xml"
   install_resource "${PODS_ROOT}/../../shared/src/commonMain/resources/outline_home.xml"
+  install_resource "${PODS_ROOT}/../../shared/src/commonMain/resources/reviewer_avtar.png"
   install_resource "${PODS_ROOT}/../../shared/src/commonMain/resources/star.png"
 fi
 if [[ "$CONFIGURATION" == "Release" ]]; then
   install_resource "${PODS_ROOT}/../../shared/src/commonMain/resources/arrow_black.xml"
+  install_resource "${PODS_ROOT}/../../shared/src/commonMain/resources/date_range.xml"
   install_resource "${PODS_ROOT}/../../shared/src/commonMain/resources/menu_top_icon.xml"
   install_resource "${PODS_ROOT}/../../shared/src/commonMain/resources/outline_home.xml"
+  install_resource "${PODS_ROOT}/../../shared/src/commonMain/resources/reviewer_avtar.png"
   install_resource "${PODS_ROOT}/../../shared/src/commonMain/resources/star.png"
 fi
 
