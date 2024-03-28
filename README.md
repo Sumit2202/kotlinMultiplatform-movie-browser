@@ -1,6 +1,6 @@
-# KotlinMultiplatform-MovieBrowser
+# KMM-MovieBrowser
 
-A KMM app to browse your favorite movies with ratings, posters, backdrops, and reviews.
+A KMM app to browse your favourite movies with ratings, posters, backdrops, and reviews.
 
 ## How to build the project
 
